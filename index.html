@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Day Glow Up — Habit Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --surface: #12121C;
+    --surface-2: #181826;
+    --green: #39FF88;
+    --green-dim: #1F8A4D;
+    --orange: #FF6B2C;
+    --orange-dim: #8A3E1A;
+    --text: #E8E6F0;
+    --text-dim: #6B6878;
+    --border: #232233;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    margin: 0;
+    background: radial-gradient(circle at 20% 0%, #14141f 0%, #0A0A0F 55%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 28px 16px 90px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* ---------- HERO / PROGRESS ---------- */
+  .hero {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+
+  .hero-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+    font-weight: 600;
+  }
+
+  .day-count {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 76px;
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.02em;
+    background: linear-gradient(180deg, #ffffff 0%, var(--green) 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .day-count .of50 {
+    font-size: 28px;
+    color: var(--text-dim);
+    -webkit-text-fill-color: var(--text-dim);
+    font-weight: 700;
+  }
+
+  .progress-track {
+    margin-top: 16px;
+    width: 100%;
+    height: 12px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--green-dim), var(--green));
+    box-shadow: 0 0 16px rgba(57,255,136,0.55);
+    transition: width 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .progress-caption {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  /* ---------- QUOTE ---------- */
+  .quote-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quote-card::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    left: -40px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(57,255,136,0.18), transparent 70%);
+  }
+
+  .quote-text {
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text);
+    margin: 0 0 6px;
+    line-height: 1.45;
+    position: relative;
+  }
+
+  .quote-refresh {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .quote-refresh:hover { color: var(--green); border-color: var(--green-dim); }
+  .quote-refresh:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  /* ---------- STATS ---------- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 8px;
+    text-align: center;
+  }
+
+  .stat-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .stat-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .stat-value.flame {
+    color: var(--orange);
+    text-shadow: 0 0 14px rgba(255,107,44,0.7);
+  }
+
+  .stat-value.trophy { color: var(--green); }
+  .stat-value.pct { color: var(--text); }
+
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  @keyframes pulse-flame {
+    0%, 100% { text-shadow: 0 0 10px rgba(255,107,44,0.5); }
+    50% { text-shadow: 0 0 22px rgba(255,107,44,0.95); }
+  }
+  .stat-value.flame.hot { animation: pulse-flame 1.6s ease-in-out infinite; }
+
+  /* ---------- WEEK NAV ---------- */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .week-nav-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .week-nav-btn:hover { border-color: var(--green-dim); color: var(--green); }
+  .week-nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .week-nav-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  .week-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .week-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ---------- GRID ---------- */
+  .grid-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 12px 16px;
+    margin-bottom: 22px;
+    overflow-x: auto;
+  }
+
+  .habit-grid {
+    display: grid;
+    grid-template-columns: minmax(96px, 1.3fr) repeat(7, 30px);
+    gap: 6px 4px;
+    align-items: center;
+    min-width: 380px;
+  }
+
+  .grid-head-cell {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .grid-head-cell.day-num {
+    font-size: 9px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .grid-corner { font-size: 10px; color: var(--text-dim); }
+
+  .habit-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .habit-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .habit-row-wrap:hover .habit-remove { opacity: 1; }
+  .habit-remove:hover { color: var(--orange); }
+  .habit-remove:focus-visible { outline: 2px solid var(--orange); opacity: 1; }
+
+  .cell {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--surface-2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: transparent;
+    transition: all 0.15s ease;
+  }
+
+  .cell:hover { border-color: var(--green-dim); }
+
+  .cell.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--bg);
+    box-shadow: 0 0 10px rgba(57,255,136,0.5);
+    font-weight: 700;
+  }
+
+  .cell.future {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .cell:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+
+  /* ---------- ADD HABIT ---------- */
+  .add-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 26px;
+  }
+
+  .add-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .add-input::placeholder { color: var(--text-dim); }
+  .add-input:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+
+  .add-btn {
+    background: var(--green);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 0 20px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .add-btn:hover { filter: brightness(1.1); }
+  .add-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+  /* ---------- CHART ---------- */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 16px;
+    margin-bottom: 10px;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 14px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .empty-note {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 30px 10px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 380px) {
+    .day-count { font-size: 60px; }
+    .habit-grid { grid-template-columns: minmax(80px, 1.2fr) repeat(7, 26px); }
+    .cell { width: 24px; height: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hero">
+    <p class="hero-eyebrow">50 Day Challenge</p>
+    <h1 class="day-count" id="day-count">DAY 0<span class="of50"> / 50</span></h1>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <p class="progress-caption" id="progress-caption">0 of 50 days completed</p>
+  </div>
+
+  <div class="quote-card">
+    <button class="quote-refresh" id="quote-refresh" aria-label="Get a new quote">⟳</button>
+    <p class="quote-text" id="quote-text">"The secret of getting ahead is getting started."</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-icon">🔥</span>
+      <div class="stat-value flame" id="streak-current">0</div>
+      <div class="stat-label">Streak</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🏆</span>
+      <div class="stat-value trophy" id="streak-best">0</div>
+      <div class="stat-label">Best</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📊</span>
+      <div class="stat-value pct" id="pct-complete">0%</div>
+      <div class="stat-label">Done</div>
+    </div>
+  </div>
+
+  <div class="week-nav">
+    <button class="week-nav-btn" id="week-prev" aria-label="Previous week">‹</button>
+    <div style="text-align:center;">
+      <div class="week-label" id="week-label">Week 1</div>
+      <div class="week-sub" id="week-sub"></div>
+    </div>
+    <button class="week-nav-btn" id="week-next" aria-label="Next week">›</button>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="habit-grid" id="habit-grid"></div>
+  </div>
+
+  <div class="add-row">
+    <input type="text" class="add-input" id="new-habit-input" placeholder="Add a new habit…" maxlength="40">
+    <button class="add-btn" id="add-habit-btn">Add</button>
+  </div>
+
+  <div class="chart-card">
+    <p class="chart-title">Weekly completion %</p>
+    <svg id="chart-svg" width="100%" height="140" viewBox="0 0 480 140" preserveAspectRatio="none"></svg>
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'neon-habit-tracker-v1';
+  const CHALLENGE_LENGTH = 50;
+
+  const QUOTES = [
+    "The secret of getting ahead is getting started.",
+    "Discipline is choosing what you want most over what you want now.",
+    "Small daily improvements lead to staggering long-term results.",
+    "You don't have to be extreme, just consistent.",
+    "Motivation gets you going. Habit keeps you growing.",
+    "Every day is a chance to become the person you want to be.",
+    "Progress, not perfection.",
+    "The pain of discipline weighs ounces; the pain of regret weighs tons.",
+    "Show up for yourself today like someone is counting on you — because someone is.",
+    "Streaks aren't built by motivation. They're built by showing up anyway.",
+    "What you do today builds the person you become tomorrow.",
+    "Consistency turns ordinary days into extraordinary results."
+  ];
+
+  function todayStr(d = new Date()) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function addDays(dateStr, n) {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return d;
+  }
+
+  function dateToStr(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (!parsed.startDate) parsed.startDate = todayStr();
+        if (!parsed.weekOffset) parsed.weekOffset = 0;
+        return parsed;
+      }
+    } catch (e) {}
+    return {
+      startDate: todayStr(),
+      weekOffset: 0,
+      habits: [
+        { id: 'h1', name: 'Wake up at 5 AM' },
+        { id: 'h2', name: 'Gym' },
+        { id: 'h3', name: 'Reading' }
+      ],
+      checks: {} // key: habitId|YYYY-MM-DD -> true
+    };
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  function idGen() { return 'h_' + Math.random().toString(36).slice(2, 9); }
+
+  let state = loadState();
+
+  // ---- derived: which days belong to current viewed week ----
+  function getWeekDates(offset) {
+    const start = addDays(state.startDate, offset * 7);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      days.push(dateToStr(addDays(dateToStr(start), i)));
+    }
+    return days;
+  }
+
+  function dayIndexFromStart(dateStr) {
+    const start = new Date(state.startDate + 'T00:00:00');
+    const d = new Date(dateStr + 'T00:00:00');
+    return Math.round((d - start) / 86400000);
+  }
+
+  function isChecked(habitId, dateStr) {
+    return !!state.checks[habitId + '|' + dateStr];
+  }
+
+  function toggleCheck(habitId, dateStr) {
+    const key = habitId + '|' + dateStr;
+    if (state.checks[key]) delete state.checks[key];
+    else state.checks[key] = true;
+    saveState();
+    renderAll();
+  }
+
+  function addHabit(name) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    state.habits.push({ id: idGen(), name: trimmed });
+    saveState();
+    renderAll();
+  }
+
+  function removeHabit(id) {
+    state.habits = state.habits.filter(h => h.id !== id);
+    Object.keys(state.checks).forEach(k => { if (k.startsWith(id + '|')) delete state.checks[k]; });
+    saveState();
+    renderAll();
+  }
+
+  // ---- core stats: a "day completed" = ALL habits checked that day ----
+  function isDayFullyDone(dateStr) {
+    if (state.habits.length === 0) return false;
+    return state.habits.every(h => isChecked(h.id, dateStr));
+  }
+
+  function getAllChallengeDays() {
+    const days = [];
+    for (let i = 0; i < CHALLENGE_LENGTH; i++) {
+      days.push(dateToStr(addDays(state.startDate, i)));
+    }
+    return days;
+  }
+
+  function computeStats() {
+    const today = todayStr();
+    const allDays = getAllChallengeDays();
+    let completedCount = 0;
+    let bestStreak = 0;
+    let runningStreak = 0;
+    let currentStreak = 0;
+
+    for (let i = 0; i < allDays.length; i++) {
+      const dateStr = allDays[i];
+      if (dateStr > today) break;
+      const done = isDayFullyDone(dateStr);
+      if (done) {
+        completedCount++;
+        runningStreak++;
+        bestStreak = Math.max(bestStreak, runningStreak);
+      } else {
+        runningStreak = 0;
+      }
+    }
+
+    // current streak = trailing streak ending today or yesterday
+    for (let i = allDays.length - 1; i >= 0; i--) {
+      const dateStr = allDays[i];
+      if (dateStr > today) continue;
+      if (isDayFullyDone(dateStr)) currentStreak++;
+      else break;
+    }
+
+    const pct = Math.round((completedCount / CHALLENGE_LENGTH) * 100);
+    return { completedCount, bestStreak, currentStreak, pct };
+  }
+
+  function weeklyCompletionSeries() {
+    // % of habits completed per day, averaged per week, for weeks that have started
+    const today = todayStr();
+    const weeks = [];
+    for (let w = 0; w < Math.ceil(CHALLENGE_LENGTH / 7); w++) {
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const dayIdx = w * 7 + i;
+        if (dayIdx >= CHALLENGE_LENGTH) break;
+        days.push(dateToStr(addDays(state.startDate, dayIdx)));
+      }
+      const pastDays = days.filter(d => d <= today);
+      if (pastDays.length === 0) { weeks.push(null); continue; }
+      if (state.habits.length === 0) { weeks.push(0); continue; }
+      let sum = 0;
+      pastDays.forEach(d => {
+        const checkedCount = state.habits.filter(h => isChecked(h.id, d)).length;
+        sum += checkedCount / state.habits.length;
+      });
+      weeks.push(Math.round((sum / pastDays.length) * 100));
+    }
+    return weeks;
+  }
+
+  // ---- rendering ----
+  function renderHero() {
+    const today = todayStr();
+    const dayIdx = Math.min(Math.max(dayIndexFromStart(today) + 1, 0), CHALLENGE_LENGTH);
+    document.getElementById('day-count').innerHTML = 'DAY ' + dayIdx + '<span class="of50"> / ' + CHALLENGE_LENGTH + '</span>';
+
+    const stats = computeStats();
+    const fillPct = Math.min(100, (stats.completedCount / CHALLENGE_LENGTH) * 100);
+    document.getElementById('progress-fill').style.width = fillPct + '%';
+    document.getElementById('progress-caption').textContent = stats.completedCount + ' of ' + CHALLENGE_LENGTH + ' days completed';
+
+    const streakEl = document.getElementById('streak-current');
+    streakEl.textContent = stats.currentStreak;
+    streakEl.classList.toggle('hot', stats.currentStreak >= 3);
+    document.getElementById('streak-best').textContent = stats.bestStreak;
+    document.getElementById('pct-complete').textContent = stats.pct + '%';
+  }
+
+  function renderQuote(forceNew) {
+    let idx;
+    if (forceNew) {
+      idx = Math.floor(Math.random() * QUOTES.length);
+      sessionStorage.setItem('quote-idx', idx);
+    } else {
+      const stored = sessionStorage.getItem('quote-idx');
+      idx = stored !== null ? parseInt(stored, 10) : Math.floor(Math.random() * QUOTES.length);
+      sessionStorage.setItem('quote-idx', idx);
+    }
+    document.getElementById('quote-text').textContent = '"' + QUOTES[idx] + '"';
+  }
+
+  function renderWeekNav() {
+    const maxOffset = Math.floor((CHALLENGE_LENGTH - 1) / 7);
+    document.getElementById('week-prev').disabled = state.weekOffset <= 0;
+    document.getElementById('week-next').disabled = state.weekOffset >= maxOffset;
+    document.getElementById('week-label').textContent = 'Week ' + (state.weekOffset + 1);
+    const days = getWeekDates(state.weekOffset);
+    const fmt = (s) => { const d = new Date(s + 'T00:00:00'); return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); };
+    document.getElementById('week-sub').textContent = fmt(days[0]) + ' – ' + fmt(days[6]);
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('habit-grid');
+    grid.innerHTML = '';
+    const days = getWeekDates(state.weekOffset);
+    const today = todayStr();
+    const dayLabels = days.map(d => new Date(d + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short' })[0]);
+
+    // header row
+    const corner = document.createElement('div');
+    corner.className = 'grid-corner';
+    corner.textContent = 'Habit';
+    grid.appendChild(corner);
+    days.forEach((d, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'grid-head-cell';
+      cell.innerHTML = dayLabels[i];
+      grid.appendChild(cell);
+    });
+
+    if (state.habits.length === 0) {
+      const note = document.createElement('div');
+      note.className = 'empty-note';
+      note.style.gridColumn = '1 / -1';
+      note.textContent = 'No habits yet — add one below to start tracking.';
+      grid.appendChild(note);
+      return;
+    }
+
+    state.habits.forEach(habit => {
+      const labelWrap = document.createElement('div');
+      labelWrap.className = 'habit-label habit-row-wrap';
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = habit.name;
+      nameSpan.style.overflow = 'hidden';
+      nameSpan.style.textOverflow = 'ellipsis';
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'habit-remove';
+      removeBtn.textContent = '✕';
+      removeBtn.setAttribute('aria-label', 'Remove ' + habit.name);
+      removeBtn.addEventListener('click', () => removeHabit(habit.id));
+      labelWrap.appendChild(nameSpan);
+      labelWrap.appendChild(removeBtn);
+      grid.appendChild(labelWrap);
+
+      days.forEach(dateStr => {
+        const cell = document.createElement('button');
+        const isFuture = dateStr > today;
+        cell.className = 'cell' + (isChecked(habit.id, dateStr) ? ' checked' : '') + (isFuture ? ' future' : '');
+        cell.textContent = '✓';
+        cell.setAttribute('aria-label', habit.name + ' on ' + dateStr);
+        cell.disabled = isFuture;
+        if (!isFuture) cell.addEventListener('click', () => toggleCheck(habit.id, dateStr));
+        grid.appendChild(cell);
+      });
+    });
+  }
+
+  function renderChart() {
+    const svg = document.getElementById('chart-svg');
+    const series = weeklyCompletionSeries();
+    const w = 480, h = 140, pad = 24;
+    const validPoints = series.map((v, i) => ({ v, i })).filter(p => p.v !== null);
+
+    if (validPoints.length === 0) {
+      svg.innerHTML = '<text x="240" y="70" text-anchor="middle" fill="#6B6878" font-size="12" font-family="Inter">No data yet — check off some habits!</text>';
+      return;
+    }
+
+    const stepX = (w - pad * 2) / (series.length - 1 || 1);
+    const toY = (val) => h - pad - (val / 100) * (h - pad * 2);
+
+    let pathPoints = [];
+    series.forEach((v, i) => {
+      if (v === null) return;
+      const x = pad + i * stepX;
+      const y = toY(v);
+      pathPoints.push([x, y]);
+    });
+
+    let linePath = 'M ' + pathPoints.map(p => p[0] + ' ' + p[1]).join(' L ');
+    let areaPath = linePath + ' L ' + pathPoints[pathPoints.length - 1][0] + ' ' + (h - pad) + ' L ' + pathPoints[0][0] + ' ' + (h - pad) + ' Z';
+
+    let svgContent = '';
+    svgContent += '<defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">';
+    svgContent += '<stop offset="0%" stop-color="#39FF88" stop-opacity="0.35"/>';
+    svgContent += '<stop offset="100%" stop-color="#39FF88" stop-opacity="0"/>';
+    svgContent += '</linearGradient></defs>';
+
+    // gridlines
+    [0, 25, 50, 75, 100].forEach(g => {
+      const y = toY(g);
+      svgContent += '<line x1="' + pad + '" y1="' + y + '" x2="' + (w - pad) + '" y2="' + y + '" stroke="#232233" stroke-width="1"/>';
+      svgContent += '<text x="2" y="' + (y + 3) + '" fill="#6B6878" font-size="9" font-family="Inter">' + g + '%</text>';
+    });
+
+    svgContent += '<path d="' + areaPath + '" fill="url(#areaGrad)"/>';
+    svgContent += '<path d="' + linePath + '" fill="none" stroke="#39FF88" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 4px rgba(57,255,136,0.6))"/>';
+    pathPoints.forEach(p => {
+      svgContent += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3.5" fill="#0A0A0F" stroke="#39FF88" stroke-width="2"/>';
+    });
+
+    svg.innerHTML = svgContent;
+  }
+
+  function renderAll() {
+    renderHero();
+    renderWeekNav();
+    renderGrid();
+    renderChart();
+  }
+
+  // ---- event bindings ----
+  document.getElementById('week-prev').addEventListener('click', () => {
+    if (state.weekOffset > 0) { state.weekOffset--; saveState(); renderAll(); }
+  });
+  document.getElementById('week-next').addEventListener('click', () => {
+    const maxOffset = Math.floor((CHALLENGE_LENGTH - 1) / 7);
+    if (state.weekOffset < maxOffset) { state.weekOffset++; saveState(); renderAll(); }
+  });
+  document.getElementById('add-habit-btn').addEventListener('click', () => {
+    const input = document.getElementById('new-habit-input');
+    addHabit(input.value);
+    input.value = '';
+    input.focus();
+  });
+  document.getElementById('new-habit-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('add-habit-btn').click();
+  });
+  document.getElementById('quote-refresh').addEventListener('click', () => renderQuote(true));
+
+  renderQuote(false);
+  renderAll();
+</script>
+</body>
+</html>
